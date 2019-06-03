@@ -3,7 +3,7 @@
 StatsDLogger prints (to stdout) any StatsD metrics sent to it. It is a simple UDP server which
 looks for messages separated by a single `:`.
 
-This is meant for development purposes and doesn't serve any production value to my knowledge.
+This is meant for development purposes and doesn't serve any production value.
 
 ## Installation
 
