@@ -31,7 +31,6 @@ defmodule IntegrationTest do
   end
 
   describe "send formatter" do
-    # Visual test due to how STDIO capture works for global processes
     test "valid / invalid messages are handled" do
       StatsDLogger.start_link(port: @port, formatter: :send)
 
