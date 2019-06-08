@@ -5,29 +5,35 @@ defmodule StatsDLogger do
   require Logger
 
   def start_link(opts) do
+    opts = Keyword.merge([send_to: self()], opts)
     GenServer.start_link(__MODULE__, opts)
   end
 
-  def init(port: port) do
+  @formatter_mapping %{
+    io: StatsDLogger.Formatter.Io,
+    send: StatsDLogger.Formatter.Send
+  }
+
+  def init(opts) do
+    port = Keyword.fetch!(opts, :port)
+    formatter_name = Keyword.get(opts, :formatter, :io)
+    formatter = Map.fetch!(@formatter_mapping, formatter_name)
+
     {:ok, _port} = :gen_udp.open(port, active: true)
 
-    {:ok, {}}
+    {:ok, {formatter, opts}}
   end
 
-  def handle_info({:udp, _port, _from, _from_port, msg}, state) do
+  def handle_info({:udp, _port, _from, _from_port, msg}, state = {formatter, opts}) do
     msg
     |> to_string()
     |> String.split(":", parts: 2)
     |> case do
       [name, value] ->
-        ["StatsD metric: ", :blue, name, " ", :green, value]
-        |> IO.ANSI.format()
-        |> IO.puts()
+        formatter.handle(:valid, name, value, opts)
 
       _ ->
-        ["StatsD invalid metric: ", :red, msg]
-        |> IO.ANSI.format()
-        |> IO.puts()
+        formatter.handle(:invalid, msg, opts)
     end
 
     {:noreply, state}
