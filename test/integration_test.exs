@@ -38,11 +38,10 @@ defmodule IntegrationTest do
       send_event("a:1")
       send_event("a:2|c")
       send_event("invalid")
-      Process.sleep(50)
 
-      assert_received {:statsd_recv, "a", "1"}
-      assert_received {:statsd_recv, "a", "2|c"}
-      assert_received {:statsd_recv_invalid, "invalid"}
+      assert_receive {:statsd_recv, "a", "1"}
+      assert_receive {:statsd_recv, "a", "2|c"}
+      assert_receive {:statsd_recv_invalid, "invalid"}
     end
   end
 end

@@ -29,4 +29,4 @@ use Mix.Config
 #
 #     import_config "#{Mix.env()}.exs"
 
-config :statsd_logger, port: 8126
+import_config "#{Mix.env()}.exs"
