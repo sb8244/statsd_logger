@@ -19,9 +19,14 @@ defmodule StatsDLogger do
     formatter_name = Keyword.get(opts, :formatter, :io)
     formatter = Map.fetch!(@formatter_mapping, formatter_name)
 
-    {:ok, _port} = :gen_udp.open(port, active: true)
+    case :gen_udp.open(port, active: true) do
+      {:ok, _port} ->
+        {:ok, {formatter, opts}}
 
-    {:ok, {formatter, opts}}
+      {:error, :eaddrinuse} ->
+        Logger.warn("#{__MODULE__} could not be started, port #{port} already in use")
+        :ignore
+    end
   end
 
   def handle_info({:udp, _port, _from, _from_port, msg}, state = {formatter, opts}) do

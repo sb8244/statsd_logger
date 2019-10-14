@@ -9,6 +9,13 @@ defmodule IntegrationTest do
     :ok = :gen_udp.close(port)
   end
 
+  describe "starting" do
+    test "an already in used port will log an error" do
+      assert {:ok, _pid} = StatsDLogger.start_link(port: @port)
+      assert StatsDLogger.start_link(port: @port) == :ignore
+    end
+  end
+
   describe "io formatter" do
     # Visual test due to how STDIO capture works for global processes
     test "valid / invalid messages are handled" do
